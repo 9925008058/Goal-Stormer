@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerCompass | Mentor Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+
+body {
+    background:#f0f2f8;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+/* ── Navbar ── */
+.navbar {
+    background:white;
+    padding:14px 32px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #e8e8e8;
+    position:sticky;
+    top:0;
+    z-index:100;
+}
+.logo { font-weight:600; font-size:18px; color:#2e4ebd; text-decoration:none; }
+.nav-links { display:flex; align-items:center; gap:20px; }
+.nav-links a {
+    font-size:14px;
+    color:#666;
+    text-decoration:none;
+    padding:6px 12px;
+    border-radius:6px;
+    transition:background 0.2s;
+}
+.nav-links a:hover { background:#f0f2f8; color:#2e4ebd; }
+.nav-links a.active { color:#2e4ebd; font-weight:500; }
+.logout-btn {
+    padding:8px 18px;
+    background:#2e4ebd;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:13px;
+    cursor:pointer;
+    text-decoration:none;
+}
+
+/* ── Layout ── */
+.page-wrap {
+    display:flex;
+    flex:1;
+    max-width:1100px;
+    margin:0 auto;
+    width:100%;
+    padding:28px 24px;
+    gap:24px;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    width:280px;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.profile-card {
+    background:white;
+    border-radius:16px;
+    padding:24px;
+    border:1px solid #e8e8e8;
+}
+
+.profile-avatar {
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#2e4ebd,#4e73df);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:14px;
+}
+
+.profile-card h3 {
+    font-size:15px;
+    font-weight:600;
+    color:#1a1a2e;
+    margin-bottom:4px;
+}
+
+.profile-card .email {
+    font-size:12px;
+    color:#aaa;
+    margin-bottom:14px;
+}
+
+.profile-goal {
+    background:#f0f4ff;
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13px;
+    color:#2e4ebd;
+    line-height:1.6;
+}
+
+.profile-goal .goal-label {
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:#8a9bda;
+    margin-bottom:4px;
+}
+
+.suggestions-card {
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    border:1px solid #e8e8e8;
+}
+
+.suggestions-card h4 {
+    font-size:12px;
+    font-weight:600;
+    color:#aaa;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom:14px;
+}
+
+.suggestion-chip {
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:10px 14px;
+    margin-bottom:8px;
+    background:#f8f9ff;
+    border:1px solid #e8e8f0;
+    border-radius:10px;
+    font-size:13px;
+    color:#444;
+    cursor:pointer;
+    transition:all 0.2s;
+    line-height:1.5;
+}
+.suggestion-chip:hover {
+    background:#f0f4ff;
+    border-color:#c5d3ff;
+    color:#2e4ebd;
+}
+
+/* ── Chat Area ── */
+.chat-wrap {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+}
+
+.chat-header {
+    background:white;
+    border-radius:16px 16px 0 0;
+    padding:18px 24px;
+    border:1px solid #e8e8e8;
+    border-bottom:none;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.chat-header-left h2 {
+    font-size:16px;
+    font-weight:600;
+    color:#1a1a2e;
+}
+
+.chat-header-left p {
+    font-size:12px;
+    color:#aaa;
+    margin-top:2px;
+}
+
+.status-dot {
+    display:inline-block;
+    width:8px;
+    height:8px;
+    background:#22c55e;
+    border-radius:50%;
+    margin-right:6px;
+}
+
+.clear-btn {
+    font-size:12px;
+    color:#aaa;
+    background:none;
+    border:1px solid #e8e8e8;
+    padding:6px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:all 0.2s;
+}
+.clear-btn:hover { color:#e53e3e; border-color:#e53e3e; }
+
+/* ── Messages ── */
+.messages-box {
+    flex:1;
+    background:white;
+    border-left:1px solid #e8e8e8;
+    border-right:1px solid #e8e8e8;
+    padding:24px;
+    overflow-y:auto;
+    height:480px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    scroll-behavior:smooth;
+}
+
+/* Welcome state */
+.welcome-msg {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    flex:1;
+    text-align:center;
+    padding:40px 20px;
+    gap:12px;
+}
+
+.welcome-msg .icon {
+    width:60px;
+    height:60px;
+    background:linear-gradient(135deg,#2e4ebd,#4e73df);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+}
+
+.welcome-msg h3 { font-size:18px; font-weight:600; color:#1a1a2e; }
+.welcome-msg p  { font-size:14px; color:#aaa; max-width:300px; line-height:1.6; }
+
+/* Message bubbles */
+.msg-row {
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+}
+
+.msg-row.user-row { flex-direction:row-reverse; }
+
+.msg-avatar {
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:600;
+}
+
+.ai-avatar {
+    background:linear-gradient(135deg,#2e4ebd,#4e73df);
+    color:white;
+}
+
+.user-avatar {
+    background:#f0f2f8;
+    color:#2e4ebd;
+    font-size:13px;
+}
+
+.msg-bubble {
+    max-width:72%;
+    padding:13px 16px;
+    border-radius:14px;
+    font-size:14px;
+    line-height:1.7;
+    color:#1a1a2e;
+}
+
+.ai-bubble {
+    background:#f8f9ff;
+    border:1px solid #e8e8f0;
+    border-radius:4px 14px 14px 14px;
+}
+
+.user-bubble {
+    background:linear-gradient(135deg,#2e4ebd,#4e73df);
+    color:white;
+    border-radius:14px 4px 14px 14px;
+}
+
+.msg-time {
+    font-size:11px;
+    color:#ccc;
+    margin-top:4px;
+    text-align:right;
+}
+
+.user-row .msg-time { text-align:left; }
+
+/* Typing indicator */
+.typing-indicator {
+    display:none;
+    gap:12px;
+    align-items:center;
+}
+.typing-indicator.show { display:flex; }
+
+.typing-dots {
+    background:#f8f9ff;
+    border:1px solid #e8e8f0;
+    border-radius:4px 14px 14px 14px;
+    padding:13px 18px;
+    display:flex;
+    gap:5px;
+    align-items:center;
+}
+
+.dot {
+    width:7px; height:7px;
+    background:#c5d3ff;
+    border-radius:50%;
+    animation:bounce 1.2s infinite;
+}
+.dot:nth-child(2) { animation-delay:0.2s; }
+.dot:nth-child(3) { animation-delay:0.4s; }
+
+@keyframes bounce {
+    0%,60%,100% { transform:translateY(0); }
+    30%          { transform:translateY(-6px); }
+}
+
+/* Bold/bullet rendering in AI messages */
+.ai-bubble strong { color:#2e4ebd; font-weight:600; }
+.ai-bubble ul, .ai-bubble ol {
+    padding-left:18px;
+    margin:6px 0;
+}
+.ai-bubble li { margin-bottom:4px; }
+
+/* ── Input Bar ── */
+.input-bar {
+    background:white;
+    border:1px solid #e8e8e8;
+    border-top:1px solid #f0f0f0;
+    border-radius:0 0 16px 16px;
+    padding:16px 20px;
+    display:flex;
+    gap:12px;
+    align-items:flex-end;
+}
+
+#msg-input {
+    flex:1;
+    border:1.5px solid #e8e8e8;
+    border-radius:12px;
+    padding:12px 16px;
+    font-size:14px;
+    font-family:'Poppins',sans-serif;
+    resize:none;
+    outline:none;
+    max-height:120px;
+    min-height:46px;
+    line-height:1.5;
+    transition:border 0.2s;
+    color:#1a1a2e;
+}
+
+#msg-input:focus { border-color:#4e73df; }
+
+.send-btn {
+    width:46px;
+    height:46px;
+    background:linear-gradient(135deg,#2e4ebd,#4e73df);
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:opacity 0.2s, transform 0.1s;
+}
+.send-btn:hover   { opacity:0.9; }
+.send-btn:active  { transform:scale(0.96); }
+.send-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+.send-btn svg { width:20px; height:20px; fill:white; }
+
+.input-hint {
+    font-size:11px;
+    color:#ccc;
+    margin-top:6px;
+    text-align:center;
+}
+
+@media(max-width:768px){
+    .page-wrap { flex-direction:column; padding:16px; }
+    .sidebar   { width:100%; }
+    .messages-box { height:360px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a href="/dashboard" class="logo">CareerCompass</a>
+    <div class="nav-links">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/mentor" class="active">Mentor Chat</a>
+        <a href="/logout" class="logout-btn">Log out</a>
+    </div>
+</div>
+
+<div class="page-wrap">
+
+    <!-- ── Sidebar ── -->
+    <div class="sidebar">
+
+        <!-- Profile card -->
+        <div class="profile-card">
+            <div class="profile-avatar">
+                {{ email[0].upper() }}
+            </div>
+            <h3>{{ email.split('@')[0] | title }}</h3>
+            <div class="email">{{ email }}</div>
+            {% if profile %}
+            <div class="profile-goal">
+                <div class="goal-label">Your goal</div>
+                {{ profile.goal[:120] }}{% if profile.goal|length > 120 %}...{% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Suggested questions -->
+        <div class="suggestions-card">
+            <h4>Ask your mentor</h4>
+
+            {% if profile %}
+            <button class="suggestion-chip"
+                onclick="usePrompt('What should I focus on this week to get closer to my goal?')">
+                What should I focus on this week?
+            </button>
+            <button class="suggestion-chip"
+                onclick="usePrompt('What are the most important skills I need to develop right now?')">
+                What skills should I build first?
+            </button>
+            <button class="suggestion-chip"
+                onclick="usePrompt('I feel stuck and unmotivated. What should I do?')">
+                I feel stuck — how do I get back on track?
+            </button>
+            <button class="suggestion-chip"
+                onclick="usePrompt('Can you give me a realistic daily schedule to reach my goal faster?')">
+                Give me a daily schedule
+            </button>
+            <button class="suggestion-chip"
+                onclick="usePrompt('What mistakes are people in my situation commonly making?')">
+                What mistakes should I avoid?
+            </button>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- ── Chat Area ── -->
+    <div class="chat-wrap">
+
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <h2><span class="status-dot"></span>AI Career Mentor</h2>
+                <p>Knows your profile · Remembers your conversation</p>
+            </div>
+            <button class="clear-btn" onclick="clearChat()">Clear chat</button>
+        </div>
+
+        <div class="messages-box" id="messages-box">
+
+            {% if not messages %}
+            <!-- Welcome state — shown when no messages yet -->
+            <div class="welcome-msg" id="welcome-msg">
+                <div class="icon">&#129302;</div>
+                <h3>Hi {{ email.split('@')[0] | title }}, I'm your mentor</h3>
+                <p>
+                    I've read your career profile and I'm ready to give you
+                    personalised advice. Ask me anything about your journey.
+                </p>
+            </div>
+            {% else %}
+            <!-- Render existing messages from DB -->
+            {% for msg in messages %}
+            <div class="msg-row {% if msg.role == 'user' %}user-row{% endif %}">
+                <div class="msg-avatar {% if msg.role == 'user' %}user-avatar{% else %}ai-avatar{% endif %}">
+                    {% if msg.role == 'user' %}{{ email[0].upper() }}{% else %}AI{% endif %}
+                </div>
+                <div>
+                    <div class="msg-bubble {% if msg.role == 'user' %}user-bubble{% else %}ai-bubble{% endif %}"
+                         {% if msg.role == 'assistant' %}id="ai-content"{% endif %}>
+                        {% if msg.role == 'assistant' %}
+                            {{ msg.content | safe }}
+                        {% else %}
+                            {{ msg.content }}
+                        {% endif %}
+                    </div>
+                    <div class="msg-time">{{ msg.created_at[:16] if msg.created_at else '' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Typing indicator -->
+            <div class="typing-indicator" id="typing">
+                <div class="msg-avatar ai-avatar">AI</div>
+                <div class="typing-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Input bar -->
+        <div class="input-bar">
+            <textarea
+                id="msg-input"
+                placeholder="Ask your mentor anything about your career..."
+                rows="1"
+                onkeydown="handleKey(event)"
+                oninput="autoResize(this)"
+            ></textarea>
+            <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
+
+    </div>
+</div>
+
+<script>
+let isSending = false;
+
+// ── Auto-resize textarea ──────────────────────────────────────────────────────
+function autoResize(el) {
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+}
+
+// ── Enter to send, Shift+Enter for newline ────────────────────────────────────
+function handleKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+// ── Use a suggestion chip ─────────────────────────────────────────────────────
+function usePrompt(text) {
+    document.getElementById("msg-input").value = text;
+    autoResize(document.getElementById("msg-input"));
+    document.getElementById("msg-input").focus();
+}
+
+// ── Render markdown-style bold and bullets ────────────────────────────────────
+function renderMarkdown(text) {
+    // Bold **text**
+    text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    // Bullet points starting with - or •
+    text = text.replace(/^[\-•]\s(.+)$/gm, "<li>$1</li>");
+    text = text.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>");
+    // Line breaks
+    text = text.replace(/\n/g, "<br>");
+    return text;
+}
+
+// ── Scroll to bottom of chat ──────────────────────────────────────────────────
+function scrollToBottom() {
+    const box = document.getElementById("messages-box");
+    box.scrollTop = box.scrollHeight;
+}
+
+// ── Get current time string ───────────────────────────────────────────────────
+function timeNow() {
+    const d = new Date();
+    return d.toISOString().slice(0, 16).replace("T", " ");
+}
+
+// ── Append a message bubble to the chat ──────────────────────────────────────
+function appendMessage(role, content, animate) {
+    // Hide welcome message if present
+    const welcome = document.getElementById("welcome-msg");
+    if (welcome) welcome.style.display = "none";
+
+    const box     = document.getElementById("messages-box");
+    const typing  = document.getElementById("typing");
+    const isUser  = role === "user";
+
+    const row = document.createElement("div");
+    row.className = `msg-row${isUser ? " user-row" : ""}`;
+
+    const avatar = document.createElement("div");
+    avatar.className = `msg-avatar ${isUser ? "user-avatar" : "ai-avatar"}`;
+    avatar.innerText = isUser
+        ? "{{ email[0].upper() }}"
+        : "AI";
+
+    const bubble = document.createElement("div");
+    bubble.className = `msg-bubble ${isUser ? "user-bubble" : "ai-bubble"}`;
+
+    if (!isUser) {
+        bubble.innerHTML = renderMarkdown(content);
+    } else {
+        bubble.innerText = content;
+    }
+
+    const time = document.createElement("div");
+    time.className = "msg-time";
+    time.innerText = timeNow();
+
+    const wrapper = document.createElement("div");
+    wrapper.appendChild(bubble);
+    wrapper.appendChild(time);
+
+    row.appendChild(avatar);
+    row.appendChild(wrapper);
+
+    // Insert before typing indicator
+    box.insertBefore(row, typing);
+    scrollToBottom();
+}
+
+// ── Show/hide typing indicator ────────────────────────────────────────────────
+function setTyping(show) {
+    const el = document.getElementById("typing");
+    el.classList.toggle("show", show);
+    if (show) scrollToBottom();
+}
+
+// ── Send message ──────────────────────────────────────────────────────────────
+async function sendMessage() {
+    if (isSending) return;
+
+    const input = document.getElementById("msg-input");
+    const msg   = input.value.trim();
+    if (!msg) return;
+
+    isSending = true;
+    input.value = "";
+    autoResize(input);
+    document.getElementById("send-btn").disabled = true;
+
+    // Show user message immediately
+    appendMessage("user", msg);
+
+    // Show typing indicator
+    setTyping(true);
+
+    try {
+        const res  = await fetch("/mentor/send", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ message: msg })
+        });
+
+        const data = await res.json();
+        setTyping(false);
+
+        if (data.error) {
+            appendMessage("assistant", "Sorry, something went wrong. Please try again.");
+        } else {
+            appendMessage("assistant", data.reply);
+        }
+
+    } catch(e) {
+        setTyping(false);
+        appendMessage("assistant", "Connection error. Please check your internet and try again.");
+    } finally {
+        isSending = false;
+        document.getElementById("send-btn").disabled = false;
+        input.focus();
+    }
+}
+
+// ── Clear chat ────────────────────────────────────────────────────────────────
+async function clearChat() {
+    if (!confirm("Clear all chat history? This cannot be undone.")) return;
+
+    await fetch("/mentor/clear", { method:"POST" });
+    window.location.reload();
+}
+
+// ── On load: scroll to bottom if messages exist ───────────────────────────────
+window.addEventListener("load", () => {
+    scrollToBottom();
+});
+</script>
+
+</body>
+</html>

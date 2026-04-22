@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerPath – Mentor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0EDE6;
+    --surface: #FAFAF7;
+    --dark: #1A1A18;
+    --muted: #8A8880;
+    --accent-yellow: #E8C84A;
+    --accent-red: #E05C3A;
+    --accent-green: #6DBF82;
+    --accent-blue: #4A8CE8;
+    --border: #E2DDD6;
+    --card-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── TODO PAGE ── */
+  .todo-page-inner{flex:1;overflow-y:auto;padding:16px 24px 24px;}
+  .todo-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .todo-header-row h2{font-size:18px;font-weight:500;}
+  .btn-add-task{background:var(--dark);color:#fff;border:none;border-radius:22px;padding:8px 18px;font-size:12px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;}
+  .todo-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  .todo-col-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .col-count{background:var(--border);color:var(--muted);border-radius:20px;padding:1px 7px;font-size:10px;}
+  .task-card{background:var(--surface);border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:transform 0.1s;}
+  .task-card:hover{transform:translateY(-1px);}
+  .task-tag{display:inline-block;font-size:9px;padding:2px 8px;border-radius:20px;margin-bottom:6px;font-weight:500;}
+  .tag-career{background:#FFF3CD;color:#8A6500;}
+  .tag-skill{background:#E8F5EC;color:#2E7D32;}
+  .tag-habit{background:#E8EFFF;color:#1A3A8A;}
+  .tag-urgent{background:#FFF0ED;color:#C0300A;}
+  .task-name{font-size:12px;font-weight:600;color:var(--dark);margin-bottom:4px;}
+  .task-meta{font-size:10px;color:var(--muted);}
+  .task-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.15s;}
+  .task-check.checked{background:var(--green);border-color:var(--green);color:#fff;}
+  .task-row{display:flex;align-items:flex-start;gap:10px;}
+  .add-task-input{width:100%;background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:10px 14px;font-size:12px;font-family:inherit;color:var(--dark);outline:none;margin-bottom:10px;}
+  .add-task-input:focus{border-color:var(--yellow);}
+
+</style>
+
+ <!-- ── TODO PAGE ── -->
+  <div class="page" id="page-todo">
+    <div class="topbar">
+      <div class="greeting"><h1>My To-Do List</h1><p>Track tasks across all career goals</p></div>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <div class="search-bar">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" placeholder="Search tasks…" oninput="filterTasks(this.value)">
+          </div>
+        </div>
+        <button class="btn-add-task" onclick="addTask()">+ Add Task</button>
+      </div>
+    </div>
+    <div class="todo-page-inner">
+      <div class="todo-cols">
+        <div>
+          <div class="todo-col-title">To Do <span class="col-count" id="todo-count">4</span></div>
+          <input class="add-task-input" placeholder="+ Quick add task here…" onkeydown="quickAdd(event,'todo')">
+          <div id="col-todo"></div>
+        </div>
+        <div>
+          <div class="todo-col-title">In Progress <span class="col-count" id="prog-count">3</span></div>
+          <div id="col-prog"></div>
+        </div>
+        <div>
+          <div class="todo-col-title">Completed <span class="col-count" id="done-count">2</span></div>
+          <div id="col-done"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+ </div><!-- /grid -->
+</main>
+
+<script>
+let tasks={
+  todo:[
+    {id:1,name:'Update LinkedIn headline',tag:'Career',tagCls:'tag-career',due:'Apr 20'},
+    {id:2,name:'Research PM job boards',tag:'Career',tagCls:'tag-career',due:'Apr 22'},
+    {id:3,name:'Practice system design',tag:'Skill',tagCls:'tag-skill',due:'Apr 25'},
+    {id:4,name:'Write cover letter template',tag:'Urgent',tagCls:'tag-urgent',due:'Apr 18'},
+  ],
+  prog:[
+    {id:5,name:'Build portfolio website',tag:'Career',tagCls:'tag-career',due:'Apr 28'},
+    {id:6,name:'Complete SQL course',tag:'Skill',tagCls:'tag-skill',due:'Apr 30'},
+    {id:7,name:'Daily reading habit',tag:'Habit',tagCls:'tag-habit',due:'Ongoing'},
+  ],
+  done:[
+    {id:8,name:'Set up resume ATS format',tag:'Career',tagCls:'tag-career',due:'Done'},
+    {id:9,name:'Schedule mentor session',tag:'Career',tagCls:'tag-career',due:'Done'},
+  ]
+};
+
+function renderTodos(){
+  ['todo','prog','done'].forEach(col=>{
+    const id=col==='todo'?'col-todo':col==='prog'?'col-prog':'col-done';
+    const data=tasks[col];
+
+    document.getElementById(id).innerHTML=data.map(t=>`
+      <div class="task-card">
+        <div class="task-row">
+          <div class="task-check ${col==='done'?'checked':''}" onclick="toggleCheck(${t.id},'${col}')">${col==='done'?'✓':''}</div>
+          <div style="flex:1">
+            <span class="task-tag ${t.tagCls}">${t.tag}</span>
+            <div class="task-name">${t.name}</div>
+            <div class="task-meta">📅 ${t.due}</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  });
+}
+
+function toggleCheck(id,col){
+  if(col==='done'){
+    const t=tasks.done.find(x=>x.id===id);
+    if(t){
+      tasks.todo.push({...t,due:'Reopened'});
+      tasks.done=tasks.done.filter(x=>x.id!==id);
+    }
+  } else {
+    let t=tasks[col].find(x=>x.id===id);
+    if(t){
+      tasks.done.push({...t,due:'Done'});
+      tasks[col]=tasks[col].filter(x=>x.id!==id);
+    }
+  }
+  renderTodos();
+}
+
+let taskIdCounter=20;
+
+function addTask(){
+  const name=prompt('Task name:','');
+  if(!name) return;
+
+  tasks.todo.push({
+    id:taskIdCounter++,
+    name,
+    tag:'Career',
+    tagCls:'tag-career',
+    due:'No date'
+  });
+
+  renderTodos();
+}
+
+function quickAdd(e,col){
+  if(e.key==='Enter' && e.target.value.trim()){
+    tasks[col].push({
+      id:taskIdCounter++,
+      name:e.target.value.trim(),
+      tag:'Career',
+      tagCls:'tag-career',
+      due:'No date'
+    });
+    e.target.value='';
+    renderTodos();
+  }
+}
+
+function filterTasks(val){
+  const q=val.toLowerCase();
+  document.querySelectorAll('.task-card').forEach(c=>{
+    const n=c.querySelector('.task-name').textContent.toLowerCase();
+    c.style.display=n.includes(q)?'':'none';
+  });
+}
+
+window.onload=renderTodos;
+</script>

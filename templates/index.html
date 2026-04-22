@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CareerCompass | Welcome</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Flask Static CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="container">
+        <div class="logo">Career Compass</div>
+
+        <div class="menu-toggle" id="menu-toggle">
+            ☰
+        </div>
+    </div>
+
+    <nav class="nav-links" id="nav-links">
+        <button class="upgrade-btn">Upgrade</button>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-text">
+        <h1>Discover your direction. Design your future.</h1>
+        <p>
+            Not sure which path fits you best? Career Compass helps you explore skills, interests,
+            and real-world opportunities — all in one smart, guided experience.
+        </p>
+
+        <!-- Flask Correct Link -->
+        <a href="{{ url_for('login') }}">
+            <button class="primary-btn">Get Started <span class="arrow">→</span></button>
+        </a>
+    </div>
+
+    <div class="hero-image">
+        <img src="{{ url_for('static', filename='careercompass.jpg') }}" alt="Career Illustration">
+    </div>
+</section>
+
+<section class="features">
+    <div class="feature-card">
+        <h3>AI Career Suggestions</h3>
+        <p>Find the best career paths based on your interests and skills.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>Structured Roadmaps</h3>
+        <p>Get 6-month step-by-step learning plans tailored for you.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>Progress Tracking</h3>
+        <p>Monitor DSA, internships, projects, and weekly goals easily.</p>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>© 2026 CareerCompass. Built for future achievers.</p>
+</footer>
+
+<script>
+const toggle = document.getElementById("menu-toggle");
+const navLinks = document.getElementById("nav-links");
+
+toggle.addEventListener("click", () => {
+    navLinks.classList.toggle("active");
+});
+</script>
+
+</body>
+</html>

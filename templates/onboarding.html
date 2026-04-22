@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerCompass | Discovery</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+
+body {
+    min-height:100vh;
+    background:linear-gradient(135deg, #1a2f8a 0%, #4e73df 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+}
+
+.card {
+    background:white;
+    border-radius:24px;
+    padding:52px 48px;
+    width:100%;
+    max-width:580px;
+    box-shadow:0 32px 80px rgba(0,0,0,0.2);
+    min-height:420px;
+    display:flex;
+    flex-direction:column;
+}
+
+/* ── Progress bar ── */
+.progress-wrap {
+    margin-bottom:36px;
+}
+.progress-label {
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:#aaa;
+    margin-bottom:8px;
+}
+.progress-track {
+    height:4px;
+    background:#f0f0f0;
+    border-radius:4px;
+    overflow:hidden;
+}
+.progress-fill {
+    height:100%;
+    background:linear-gradient(90deg, #2e4ebd, #4e73df);
+    border-radius:4px;
+    transition:width 0.5s ease;
+    width:0%;
+}
+
+/* ── Question area ── */
+.q-label {
+    font-size:11px;
+    font-weight:600;
+    color:#4e73df;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin-bottom:14px;
+}
+
+.question-text {
+    font-size:20px;
+    font-weight:600;
+    color:#1a1a2e;
+    line-height:1.5;
+    margin-bottom:8px;
+    min-height:60px;
+    transition:opacity 0.3s;
+}
+
+.q-hint {
+    font-size:13px;
+    color:#aaa;
+    margin-bottom:28px;
+    min-height:20px;
+}
+
+textarea {
+    width:100%;
+    padding:16px 18px;
+    border:1.5px solid #e8e8e8;
+    border-radius:12px;
+    font-size:15px;
+    font-family:'Poppins',sans-serif;
+    resize:none;
+    outline:none;
+    transition:border 0.2s, box-shadow 0.2s;
+    color:#1a1a1a;
+    height:110px;
+    line-height:1.6;
+}
+textarea:focus {
+    border-color:#4e73df;
+    box-shadow:0 0 0 3px rgba(78,115,223,0.1);
+}
+
+.char-count {
+    text-align:right;
+    font-size:12px;
+    color:#ccc;
+    margin-top:6px;
+    margin-bottom:16px;
+}
+
+.next-btn {
+    width:100%;
+    padding:15px;
+    background:linear-gradient(135deg, #2e4ebd, #4e73df);
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:500;
+    cursor:pointer;
+    transition:opacity 0.2s, transform 0.1s;
+    margin-top:auto;
+}
+.next-btn:hover    { opacity:0.9; }
+.next-btn:active   { transform:scale(0.99); }
+.next-btn:disabled { opacity:0.45; cursor:not-allowed; }
+
+/* ── Loader state ── */
+.loader-wrap {
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    flex:1;
+    gap:20px;
+    padding:40px 0;
+}
+.loader-wrap.show { display:flex; }
+
+.spinner-ring {
+    width:48px; height:48px;
+    border:3px solid #f0f0f0;
+    border-top-color:#4e73df;
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.loader-text {
+    font-size:15px;
+    color:#888;
+    text-align:center;
+}
+.loader-sub {
+    font-size:13px;
+    color:#bbb;
+    text-align:center;
+}
+
+/* ── Summary screen ── */
+.summary-screen {
+    display:none;
+    flex-direction:column;
+    flex:1;
+}
+.summary-screen.show { display:flex; }
+
+.summary-header {
+    margin-bottom:24px;
+}
+.summary-header h2 {
+    font-size:22px;
+    font-weight:600;
+    color:#1a1a2e;
+    margin-bottom:6px;
+}
+.summary-header p {
+    font-size:13px;
+    color:#aaa;
+}
+
+.summary-body {
+    background:#f8f9ff;
+    border:1px solid #e0e6ff;
+    border-radius:14px;
+    padding:24px;
+    font-size:14px;
+    color:#2a2a3e;
+    line-height:1.85;
+    flex:1;
+    overflow-y:auto;
+    white-space:pre-wrap;
+    max-height:340px;
+}
+
+/* Bold markdown rendering */
+.summary-body strong {
+    color:#2e4ebd;
+    font-weight:600;
+}
+
+.dashboard-btn {
+    width:100%;
+    padding:15px;
+    background:#1a2f8a;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:500;
+    cursor:pointer;
+    margin-top:20px;
+    transition:background 0.2s;
+}
+.dashboard-btn:hover { background:#142470; }
+
+/* ── Intro screen ── */
+.intro-screen {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    flex:1;
+    text-align:center;
+    gap:16px;
+}
+
+.intro-icon {
+    width:72px; height:72px;
+    background:linear-gradient(135deg,#2e4ebd,#4e73df);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+}
+
+.intro-screen h2 { font-size:22px; font-weight:600; color:#1a1a2e; }
+.intro-screen p  { font-size:14px; color:#888; max-width:340px; line-height:1.7; }
+
+.start-btn {
+    padding:14px 40px;
+    background:linear-gradient(135deg,#2e4ebd,#4e73df);
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:500;
+    cursor:pointer;
+    margin-top:8px;
+}
+
+@media(max-width:600px){
+    .card { padding:36px 28px; }
+    .question-text { font-size:17px; }
+}
+</style>
+</head>
+<body>
+
+<div class="card" id="main-card">
+
+    <!-- ── INTRO SCREEN ── -->
+    <div class="intro-screen" id="intro-screen">
+        <div class="intro-icon">&#127919;</div>
+        <h2>Let's discover your path</h2>
+        <p>
+           Answer a few simple questions.AI will uncover your direction, design your roadmap, and show you exactly what to do next.
+        </p>
+        <p style="font-size:12px;color:#bbb;">Takes about 3–5 minutes. Be honest — the more detail, the better.</p>
+        <button class="start-btn" onclick="startOnboarding()">Start my discovery →</button>
+    </div>
+
+    <!-- ── QUESTION SCREEN ── -->
+    <div id="question-screen" style="display:none; flex-direction:column; flex:1;">
+
+        <div class="progress-wrap">
+            <div class="progress-label">
+                <span id="progress-label-text">Question 1 of 4</span>
+                <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="q-label" id="q-label">Career Discovery</div>
+        <div class="question-text" id="question-text">Loading your question...</div>
+        <div class="q-hint" id="q-hint">Take your time — there are no wrong answers.</div>
+
+        <textarea
+            id="answer-input"
+            placeholder="Type your answer here..."
+            oninput="updateChar()"
+            onkeydown="handleKey(event)"
+        ></textarea>
+        <div class="char-count"><span id="char-count">0</span> characters</div>
+
+        <button class="next-btn" id="next-btn" onclick="submitAnswer()" disabled>
+            Continue →
+        </button>
+    </div>
+
+    <!-- ── LOADER ── -->
+    <div class="loader-wrap" id="loader-wrap">
+        <div class="spinner-ring"></div>
+        <div class="loader-text" id="loader-text">Analysing your answer...</div>
+        <div class="loader-sub" id="loader-sub">Generating your next question</div>
+    </div>
+
+    <!-- ── SUMMARY SCREEN ── -->
+    <div class="summary-screen" id="summary-screen">
+        <div class="summary-header">
+            <h2>Your career analysis</h2>
+            <p>Based on your 4 answers — personalised only for you.</p>
+        </div>
+        <div class="summary-body" id="summary-body">Generating your analysis...</div>
+        <button class="dashboard-btn" onclick="window.location.href='/dashboard'">
+            Go to my dashboard →
+        </button>
+    </div>
+
+</div>
+
+<script>
+let currentQuestion     = "";
+let currentQuestionNum  = 0;
+let isSubmitting        = false;
+
+// ── Show/hide helpers ─────────────────────────────────────────────────────────
+function showScreen(name) {
+    document.getElementById("intro-screen").style.display    = "none";
+    document.getElementById("question-screen").style.display = "none";
+    document.getElementById("loader-wrap").classList.remove("show");
+    document.getElementById("summary-screen").classList.remove("show");
+
+    if (name === "intro") {
+        document.getElementById("intro-screen").style.display = "flex";
+    } else if (name === "question") {
+        document.getElementById("question-screen").style.display = "flex";
+    } else if (name === "loader") {
+        document.getElementById("loader-wrap").classList.add("show");
+    } else if (name === "summary") {
+        document.getElementById("summary-screen").classList.add("show");
+    }
+}
+
+// ── Update progress bar ───────────────────────────────────────────────────────
+function updateProgress(qNum) {
+    const pct = Math.round(((qNum - 1) / 4) * 100);
+    document.getElementById("progress-fill").style.width    = pct + "%";
+    document.getElementById("progress-pct").innerText       = pct + "%";
+    document.getElementById("progress-label-text").innerText = `Question ${qNum} of 4`;
+}
+
+// ── Char counter + enable button ─────────────────────────────────────────────
+function updateChar() {
+    const val = document.getElementById("answer-input").value;
+    document.getElementById("char-count").innerText = val.length;
+    document.getElementById("next-btn").disabled    = val.trim().length < 10;
+}
+
+// ── Allow Ctrl+Enter to submit ────────────────────────────────────────────────
+function handleKey(e) {
+    if (e.key === "Enter" && e.ctrlKey) submitAnswer();
+}
+
+// ── Display a question on screen ──────────────────────────────────────────────
+function displayQuestion(questionText, qNum) {
+    currentQuestion    = questionText;
+    currentQuestionNum = qNum;
+
+    document.getElementById("question-text").innerText = questionText;
+    document.getElementById("q-label").innerText       = `Question ${qNum} of 4`;
+    document.getElementById("answer-input").value      = "";
+    document.getElementById("char-count").innerText    = "0";
+    document.getElementById("next-btn").disabled       = true;
+
+    const hints = [
+        "Take your time — there are no wrong answers.",
+        "Be specific — the more detail, the better your analysis.",
+        "Think about what's really holding you back.",
+        "This is your last question — make it count."
+    ];
+    document.getElementById("q-hint").innerText = hints[qNum - 1] || "";
+
+    updateProgress(qNum);
+    showScreen("question");
+    document.getElementById("answer-input").focus();
+}
+
+// ── Bold **text** in summary ──────────────────────────────────────────────────
+function renderMarkdown(text) {
+    return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+}
+
+// ── STEP 1: Start onboarding — fetch Q1 ──────────────────────────────────────
+async function startOnboarding() {
+    showScreen("loader");
+    document.getElementById("loader-text").innerText = "Preparing your session...";
+    document.getElementById("loader-sub").innerText  = "Setting up question 1";
+
+    try {
+        const res  = await fetch("/onboarding/q1", { method:"POST" });
+        const data = await res.json();
+        displayQuestion(data.question, 1);
+    } catch(e) {
+        alert("Could not start session. Please refresh and try again.");
+        showScreen("intro");
+    }
+}
+
+// ── STEP 2+: Submit answer → get next question or finish ──────────────────────
+async function submitAnswer() {
+    if (isSubmitting) return;
+    const answer = document.getElementById("answer-input").value.trim();
+    if (answer.length < 10) return;
+
+    isSubmitting = true;
+    document.getElementById("next-btn").disabled = true;
+
+    const isLastQuestion = currentQuestionNum >= 4;
+
+    // Show loader
+    showScreen("loader");
+    if (isLastQuestion) {
+        document.getElementById("loader-text").innerText = "Processing your answers...";
+        document.getElementById("loader-sub").innerText  = "Building your personalised analysis";
+    } else {
+        document.getElementById("loader-text").innerText = "Analysing your answer...";
+        document.getElementById("loader-sub").innerText  = `Generating question ${currentQuestionNum + 1}`;
+    }
+
+    try {
+        // Send answer to backend
+        const res = await fetch("/onboarding/answer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                question:        currentQuestion,
+                answer:          answer,
+                question_number: currentQuestionNum
+            })
+        });
+        const data = await res.json();
+
+        if (data.status === "done") {
+            // All 4 answers collected — now generate summary
+            await generateSummary();
+        } else {
+            // Show next question
+            displayQuestion(data.question, data.question_number);
+        }
+
+    } catch(e) {
+        alert("Something went wrong. Please try again.");
+        displayQuestion(currentQuestion, currentQuestionNum);
+    } finally {
+        isSubmitting = false;
+    }
+}
+
+// ── FINAL: Generate and display summary ───────────────────────────────────────
+async function generateSummary() {
+    showScreen("loader");
+    document.getElementById("loader-text").innerText = "Writing your career analysis...";
+    document.getElementById("loader-sub").innerText  = "This takes 10–20 seconds — worth the wait";
+
+    try {
+        const res  = await fetch("/onboarding/finish", { method:"POST" });
+        const data = await res.json();
+
+        if (data.error) {
+            alert("Could not generate summary. Please try again.");
+            return;
+        }
+
+        // Render summary with markdown bold
+        document.getElementById("summary-body").innerHTML = renderMarkdown(data.summary);
+        showScreen("summary");
+
+        // Scroll summary to top
+        document.getElementById("summary-body").scrollTop = 0;
+
+    } catch(e) {
+        alert("Summary generation failed. Please try again.");
+    }
+}
+</script>
+
+</body>
+</html>

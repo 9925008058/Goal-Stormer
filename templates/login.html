@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Compass | Register</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body{
+    background:#f4f4f4;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    width:900px;
+    height:550px;
+    background:white;
+    display:flex;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 15px 35px rgba(0,0,0,0.1);
+}
+
+.left{
+    width:50%;
+    padding:60px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.left h2{
+    margin-bottom:20px;
+    font-weight:600;
+}
+
+.input-box{
+    margin-bottom:20px;
+}
+
+.input-box input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-bottom:1px solid #ccc;
+    outline:none;
+}
+
+.btn{
+    padding:12px;
+    background:black;
+    color:white;
+    border:none;
+    margin-top:15px;
+    cursor:pointer;
+    width:100%;
+}
+
+.toggle-text{
+    margin-top:20px;
+    font-size:14px;
+}
+
+.toggle-text span{
+    color:#4e73df;
+    cursor:pointer;
+}
+
+/* ===== Right Side (Welcome Panel) ===== */
+.right{
+    width:50%;
+    background: linear-gradient(135deg, #2e4ebd 0%, #4e73df 100%);
+    color:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:60px;
+    position:relative;
+    overflow:hidden;
+}
+
+/* Heading */
+.right h2{
+    font-size:30px;
+    font-weight:600;
+    margin-bottom:15px;
+    letter-spacing:0.5px;
+}
+
+/* Sub text */
+.right h3{
+    font-weight:400;
+    font-size:16px;
+    opacity:0.9;
+    max-width:300px;
+    line-height:1.6;
+}
+
+/* Soft Decorative Shapes */
+.circle{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.1);
+}
+
+.circle1{
+    width:220px;
+    height:220px;
+    top:-60px;
+    right:-60px;
+}
+
+.circle2{
+    width:140px;
+    height:140px;
+    bottom:-40px;
+    left:-40px;
+}
+
+.flash-message{
+    color:red;
+    margin-bottom:15px;
+    font-size:14px;
+}
+
+@media(max-width:768px){
+    .container{
+        flex-direction:column;
+        width:95%;
+        height:auto;
+    }
+    .left,.right{
+        width:100%;
+        height:auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- LEFT SIDE -->
+    <div class="left">
+        <h2>Create Account</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form id="auth-form" action="{{ url_for('register') }}" method="POST">
+            <div class="input-box">
+                 <input type="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="input-box">
+                 <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn" id="main-btn">Sign Up</button>
+        </form>
+<div class="toggle-text">
+            <span onclick="toggleForm()">Already have an account? Log in</span>
+        </div>
+        <!-- <div class="toggle-text">
+            <a href="{{ url_for('home') }}">← Back to Home</a>
+        </div> -->
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right">
+        <div class="circle circle1"></div>
+        <div class="circle circle2"></div>
+        <h2>Welcome to CareerCompass</h2>
+        <h3>Your journey to the right career starts here.</h3>
+    </div>
+
+</div>
+<script>
+let isLogin = false;
+
+function toggleForm(){
+    const form = document.getElementById("auth-form");
+    const btn = document.getElementById("main-btn");
+    const toggleText = document.querySelector(".toggle-text span");
+
+    if(!isLogin){
+        form.action = "{{ url_for('login_user') }}";
+        btn.innerText = "Login";
+        toggleText.innerText = "Don't have an account? Sign Up";
+        isLogin = true;
+    } else {
+        form.action = "{{ url_for('register') }}";
+        btn.innerText = "Sign Up";
+        toggleText.innerText = "Already have an account? Log in";
+        isLogin = false;
+    }
+}
+</script>
+</body>
+</html>
