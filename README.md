@@ -85,7 +85,7 @@ A modern web browser
 
 Installation
 bash# Clone the repository
-git clone https://github.com/your-username/goal-stormer.git
+git clone https://github.com/9925008058/goal-stormer.git
 cd goal-stormer
 
 # Install dependencies
